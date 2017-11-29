@@ -1,7 +1,10 @@
 //set dimensions and margins of the graph
-var margin = {top:20, right:20, bottom:20, left:60},
+var margin = {top:20, right:20, bottom:100, left:60},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
+
+// format 2 deicmal places
+var formatDecimalComma = d3.format(",.2f");
 
 //set the ranges
 var x = d3.scaleBand()
@@ -26,7 +29,7 @@ var svg = d3.select("#South_suburbs").append("svg")
             "translate(" + margin.left + "," + margin.top + ")");
 
 // get the data
-d3.csv("../SoutherSuburbs2016.csv", function(error, data){
+d3.csv("../DataSets/sanatized/1_SoutherSuburbs-2016.csv", function(error, data){
   if (error) throw error;
 
   // format the data
@@ -38,14 +41,14 @@ d3.csv("../SoutherSuburbs2016.csv", function(error, data){
   x.domain(data.map(function(d) { return d.Suburb; }));
   y.domain([0, d3.max(data, function(d){ return d.TOTAL; })]);
 
-  // append the rectangles for the bar chart
+  //append the rectangles for the bar chart
   var barz = svg.selectAll(".bar")
-                .data(data)
-  // Enter
-    .enter().append("rect")
+                .data(data);
+    //Enter
+    barz.enter().append("rect")
       .attr("class", "bar")
-  // Update
-    .merge(barz)
+      //Update
+      .merge(barz)
       .attr("x", function(d) { return x(d.Suburb); })
       .attr("width", x.bandwidth())
       .attr("y", function(d) { return y(d.TOTAL); })
@@ -57,23 +60,28 @@ d3.csv("../SoutherSuburbs2016.csv", function(error, data){
           .style("top", d3.event.y + "px")
           .html(`
             <p><b>${d.Suburb}</b></p>
-            <p>Consumption: ${d.SUM.toLocaleString()} kilolitres </p>
-            <p>Theoretical Losses: ${d.Losses.toLocaleString()} kilolitres </p>
-            <p>Total Usage: ${d.TOTAL.toLocaleString()} kilolitres </p>
+            <p>Consumption: ${formatDecimalComma(d.SUM).toLocaleString()} kilolitres </p>
+            <p>Theoretical Losses: ${formatDecimalComma(d.Losses).toLocaleString()} kilolitres </p>
+            <p>Total Usage: ${formatDecimalComma(d.TOTAL).toLocaleString()} kilolitres </p>
             `);
-      }) // hides the tooltip
+      })
       .on("mouseout", function() {
         tooltip
           .style("opacity", 0);
       });
-    
-    // Exit
-    barz.exit().remove()
+      //Exit
+      barz.exit().remove()
 
   // add the x axis
   svg.append("g")
     .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x));
+    .call(d3.axisBottom(x))
+    // rotate text
+    .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
 
   // add the y axis
   svg.append("g")
