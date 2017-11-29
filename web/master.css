@@ -1,6 +1,9 @@
 .bar {
   fill: steelblue;
 }
+.bar:hover {
+  fill: green;
+}
 
 .tooltip {
   opacity: 0;
