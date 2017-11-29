@@ -38,11 +38,14 @@ d3.csv("../SoutherSuburbs2016.csv", function(error, data){
   x.domain(data.map(function(d) { return d.Suburb; }));
   y.domain([0, d3.max(data, function(d){ return d.TOTAL; })]);
 
-  //append the rectangles for the bar chart
-  svg.selectAll(".bar")
-      .data(data)
+  // append the rectangles for the bar chart
+  var barz = svg.selectAll(".bar")
+                .data(data)
+  // Enter
     .enter().append("rect")
       .attr("class", "bar")
+  // Update
+    .merge(barz)
       .attr("x", function(d) { return x(d.Suburb); })
       .attr("width", x.bandwidth())
       .attr("y", function(d) { return y(d.TOTAL); })
@@ -58,11 +61,14 @@ d3.csv("../SoutherSuburbs2016.csv", function(error, data){
             <p>Theoretical Losses: ${d.Losses.toLocaleString()} kilolitres </p>
             <p>Total Usage: ${d.TOTAL.toLocaleString()} kilolitres </p>
             `);
-      })
+      }) // hides the tooltip
       .on("mouseout", function() {
         tooltip
           .style("opacity", 0);
       });
+    
+    // Exit
+    barz.exit().remove()
 
   // add the x axis
   svg.append("g")
